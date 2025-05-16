@@ -4,12 +4,18 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 
-from database import async_session
+from database import async_session, init_db
 from main import app
 from models import Recipe
 
 # Создаем транспорт для запуска FastAPI приложения в тестах
 transport = ASGITransport(app=app)
+
+
+@pytest.fixture(autouse=True, scope="module")
+async def initialize_db() -> None:
+    """Инициализирует базу данных перед запуском тестов"""
+    await init_db()
 
 
 @pytest.fixture(autouse=True)
@@ -21,7 +27,6 @@ async def cleanup_db() -> AsyncGenerator[None, None]:
         yield
 
 
-@pytest.mark.asyncio
 @pytest.mark.asyncio
 async def test_create_recipe() -> None:
     async with AsyncClient(transport=transport, base_url="http://test") as ac:

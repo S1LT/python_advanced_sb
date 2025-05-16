@@ -41,8 +41,8 @@ async def get_recipes(db: DatabaseSession) -> List[RecipeOut]:
     result = await db.execute(
         select(Recipe).order_by(Recipe.views.desc(), Recipe.cooking_time.asc())
     )
-    recipes: List[RecipeOut] = result.scalars().all()  # type: ignore[assignment]
-    return recipes
+    recipes: List[RecipeOut] = list(result.scalars().all())
+    return recipes  # type: ignore[return-value]
 
 
 @app.get("/recipes/{recipe_id}", response_model=RecipeDetailsOut)

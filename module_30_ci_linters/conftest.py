@@ -14,9 +14,9 @@ from database import Base as DatabaseBase
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 
