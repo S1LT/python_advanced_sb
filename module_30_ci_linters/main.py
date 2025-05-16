@@ -41,21 +41,22 @@ async def get_recipes(db: DatabaseSession) -> List[RecipeOut]:
     result = await db.execute(
         select(Recipe).order_by(Recipe.views.desc(), Recipe.cooking_time.asc())
     )
-    recipes: List[RecipeOut] = result.scalars().all()
+    recipes: List[RecipeOut] = result.scalars().all()  # type: ignore[assignment]
     return recipes
 
 
 @app.get("/recipes/{recipe_id}", response_model=RecipeDetailsOut)
 async def get_recipe_by_id(recipe_id: int, db: DatabaseSession) -> RecipeDetailsOut:
     result = await db.execute(select(Recipe).where(Recipe.id == recipe_id))
-    recipe: RecipeDetailsOut = result.scalar_one_or_none()
+    recipe: Recipe | None = result.scalar_one_or_none()
 
     if not recipe:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found"
         )
 
-    recipe.views += 1
+    recipe.views += 1  # type: ignore[assignment]
     await db.commit()
     await db.refresh(recipe)
+
     return recipe
