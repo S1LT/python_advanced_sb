@@ -19,16 +19,16 @@ jobs:
         pip install flake8 isort black mypy pytest
 
     - name: Run isort
-      run: isort --check-only .
+      run: isort --check-only module_30_ci_linters/
 
     - name: Run black
-      run: black --check .
+      run: black --check module_30_ci_linters/
 
     - name: Run flake8
-      run: flake8 .
+      run: flake8 module_30_ci_linters/
 
     - name: Run mypy
-      run: mypy .
+      run: mypy module_30_ci_linters/
 
     - name: Run tests
-      run: pytest -v
+      run: pytest -v module_30_ci_linters/
