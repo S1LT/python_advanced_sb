@@ -1,8 +1,7 @@
-# main.py
-
 from contextlib import asynccontextmanager
+from typing import Annotated, AsyncGenerator, List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -12,7 +11,7 @@ from schemas import RecipeCreate, RecipeDetailsOut, RecipeOut
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await init_db()
     yield
 
@@ -20,13 +19,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-async def get_db():
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session
 
 
-@app.post("/recipes", response_model=RecipeOut)
-async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)):
+DatabaseSession = Annotated[AsyncSession, Depends(get_db)]
+
+
+@app.post("/recipes", response_model=RecipeOut, status_code=status.HTTP_201_CREATED)
+async def create_recipe(recipe: RecipeCreate, db: DatabaseSession) -> RecipeOut:
     db_recipe = Recipe(**recipe.model_dump())
     db.add(db_recipe)
     await db.commit()
@@ -34,20 +36,26 @@ async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)
     return db_recipe
 
 
-@app.get("/recipes", response_model=list[RecipeOut])
-async def get_recipes(db: AsyncSession = Depends(get_db)):
+@app.get("/recipes", response_model=List[RecipeOut])
+async def get_recipes(db: DatabaseSession) -> List[RecipeOut]:
     result = await db.execute(
         select(Recipe).order_by(Recipe.views.desc(), Recipe.cooking_time.asc())
     )
-    return result.scalars().all()
+    recipes: List[RecipeOut] = result.scalars().all()
+    return recipes
 
 
 @app.get("/recipes/{recipe_id}", response_model=RecipeDetailsOut)
-async def get_recipe_by_id(recipe_id: int, db: AsyncSession = Depends(get_db)):
+async def get_recipe_by_id(recipe_id: int, db: DatabaseSession) -> RecipeDetailsOut:
     result = await db.execute(select(Recipe).where(Recipe.id == recipe_id))
-    recipe = result.scalar_one_or_none()
+    recipe: RecipeDetailsOut = result.scalar_one_or_none()
+
     if not recipe:
-        raise HTTPException(status_code=404, detail="Recipe not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found"
+        )
+
     recipe.views += 1
     await db.commit()
+    await db.refresh(recipe)
     return recipe
