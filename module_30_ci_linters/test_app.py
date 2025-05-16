@@ -1,11 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, text
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from database import async_session
 from main import app
 from models import Recipe
-from database import async_session
 
 # Создаем синхронного клиента для тестов
 client = TestClient(app)

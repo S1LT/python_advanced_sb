@@ -6,7 +6,6 @@ from sqlalchemy.orm import sessionmaker
 
 from database import Base as DatabaseBase
 
-
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 

@@ -1,8 +1,15 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy[asyncio]
+aiosqlite
 asyncpg
 pytest
 pytest-asyncio
 httpx
 pydantic
+
+# Линтеры и форматтеры
+flake8
+isort
+black
+mypy

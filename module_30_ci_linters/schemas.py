@@ -1,5 +1,7 @@
-from pydantic import BaseModel, field_validator, ConfigDict
 from typing import List
+
+from pydantic import BaseModel, ConfigDict, field_validator
+
 
 class RecipeCreate(BaseModel):
     title: str

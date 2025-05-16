@@ -1,12 +1,14 @@
 # main.py
 
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from models import Recipe
-from schemas import RecipeCreate, RecipeOut, RecipeDetailsOut
-from database import async_session, init_db
 from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+
+from database import async_session, init_db
+from models import Recipe
+from schemas import RecipeCreate, RecipeDetailsOut, RecipeOut
 
 
 @asynccontextmanager
