@@ -15,7 +15,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        pip install -r python_advanced_sb/module_30_ci_linters/requirements.txt
         pip install flake8 isort black mypy pytest
 
     - name: Run isort
